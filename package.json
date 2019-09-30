@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Justin-Lighthouse/tinyapp/issues"
   },
-  "homepage": "https://github.com/Justin-Lighthouse/tinyapp#readme"
+  "homepage": "https://github.com/Justin-Lighthouse/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }

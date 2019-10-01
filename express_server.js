@@ -1,5 +1,7 @@
 const express = require("express");
+const cookieParser = require('cookie-parser');
 const app = express();
+app.use(cookieParser());
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -24,18 +26,24 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
+  if (req.cookies["username"]) {
+    templateVars = {
+      username: req.cookies["username"],
+      urls: urlDatabase
+    };
+  }
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
-});
-
-app.post("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  res.render("urls_show", templateVars);
-  // const longURL = urlDatabase[req.params.shortURL];
-  // res.redirect(longURL);
+  if (req.cookies["username"]) {
+    let templateVars = {
+      username: req.cookies["username"],
+    };
+    res.render("urls_new", templateVars);
+  } else {
+    res.render("urls_new");
+  }
 });
 
 app.listen(PORT, () => {
@@ -43,7 +51,6 @@ app.listen(PORT, () => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
   urlDatabase[generateRandomString()] = req.body.longURL;
   res.redirect("/urls");
 });
@@ -58,10 +65,25 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 });
 
-function generateRandomString() {
-  var result = '';
-  chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  for (var i = 0; i < 6; i++) {
+app.post("/urls/:shortURL", (req, res) => {
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  res.render("urls_show", templateVars);
+});
+
+app.post("/login", (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect("urls");
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('username');
+  res.redirect("urls");
+});
+
+const generateRandomString = function() {
+  let result = '';
+  let chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for (let i = 0; i < 6; i++) {
     result += chars[Math.floor(Math.random() * chars.length)];
   }
   return result;

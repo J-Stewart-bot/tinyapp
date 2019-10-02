@@ -114,8 +114,12 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
+  if (req.cookies['user_id'] === urlDatabase[req.params.shortURL]) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  } else {
+    res.redirect('/urls');
+  }
 });
 
 app.post("/urls/:shortURL", (req, res) => {

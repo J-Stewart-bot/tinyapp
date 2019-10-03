@@ -54,7 +54,7 @@ app.get("/urls", (req, res) => {
     };
     res.render("urls_index", templateVars);
   } else {
-    res.send("<html><body>ERROR 400</body></html>\n");
+    res.send("<html><body>ERROR 403</body></html>\n");
   }
 });
 
@@ -71,11 +71,11 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   if (typeof req.session.user_id === undefined) {
-    res.send("<html><body>ERROR 400</body></html>\n");
+    res.send("<html><body>ERROR 403</body></html>\n");
   } else if (typeof urlDatabase[req.params.shortURL] === undefined) {
-    res.send("<html><body>ERROR 400</body></html>\n");
+    res.send("<html><body>ERROR 403</body></html>\n");
   } else if (req.session.user_id && typeof usersURLS[req.session.user_id] === undefined) {
-    res.send("<html><body>ERROR 400</body></html>\n");
+    res.send("<html><body>ERROR 403</body></html>\n");
   } else {
     let templateVars = {
       shortURL: req.params.shortURL,

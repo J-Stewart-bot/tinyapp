@@ -111,7 +111,7 @@ app.get("/login", (req, res) => {
 });
 
 
-
+//if the user is logged in, it will allow the user to create a tinyurl
 app.post("/urls", (req, res) => {
   if (req.session.user_id) {
     urlDatabase[generateRandomString()] = {
@@ -124,6 +124,9 @@ app.post("/urls", (req, res) => {
   }
 });
 
+//if the user is logged in and owns the tinyurl they can edit the tinyurl,
+//if the user is logged in but the tinyurl does not exist then the route will throw an error,
+//if the user is not logged in the route will throw an error.
 app.post("/urls/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL].userID === req.session.user_id) {
     urlDatabase[req.params.shortURL] = {
@@ -138,16 +141,19 @@ app.post("/urls/:shortURL", (req, res) => {
   }
 });
 
+//if the user is logged in and owns the tinyurl they can delete the tinyurl,
+//if the user is not logged in or doesnt own the url an error is thrown
 app.post("/urls/:shortURL/delete", (req, res) => {
   if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    console.log("HERE");
     res.redirect('/urls');
   }
 });
 
+//if the user uses the correct email and username the user is logged in,
+//if the user uses an incorrect email or password an error is thrown.
 app.post("/login", (req, res) => {
   for (const index of Object.keys(users)) {
     if (users[index].email === req.body.email) {
@@ -162,11 +168,13 @@ app.post("/login", (req, res) => {
   res.send("<html><body>ERROR 403</body></html>\n");
 });
 
+//logs the user out of the app
 app.post("/logout", (req, res) => {
   req.session.user_id = undefined;
   res.redirect("/login");
 });
 
+//if the user inputs a correct email and a password a new account is created and logs in the user.
 app.post("/register", (req, res) => {
   let newId = generateRandomString();
   if (req.body.email === '' || req.body.password === '') {

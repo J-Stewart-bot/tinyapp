@@ -54,7 +54,7 @@ app.get("/urls", (req, res) => {
     };
     res.render("urls_index", templateVars);
   } else {
-    res.send("<html><body>ERROR 403</body></html>\n");
+    res.redirect("/register");
   }
 });
 
@@ -171,19 +171,20 @@ app.post("/register", (req, res) => {
   let newId = generateRandomString();
   if (req.body.email === '' || req.body.password === '') {
     res.send("<html><body>ERROR 400</body></html>\n");
-  }
-  for (const index of Object.keys(users)) {
-    if (req.body.email === users[index].email) {
-      res.send("<html><body>ERROR 400</body></html>\n");
+  } else {
+    for (const index of Object.keys(users)) {
+      if (req.body.email === users[index].email) {
+        res.send("<html><body>ERROR 400</body></html>\n");
+      }
     }
+    users[newId] = {
+      id: newId,
+      email: req.body.email,
+      password: bcrypt.hashSync(req.body.password, 10)
+    };
+    req.session.user_id = newId;
+    res.redirect("urls");
   }
-  users[newId] = {
-    id: newId,
-    email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 10)
-  };
-  req.session.user_id = newId;
-  res.redirect("urls");
 });
 
 
